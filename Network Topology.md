@@ -25,4 +25,22 @@ Server 1 will be 168.192.1.9 and Sever 2 168.192.1.10
 
 <b><i> write code here</i></b>
     
-The markdown and the /24 have a similar use, they serve to detremine the range of ip address with which our own device can comunicate directly. the /24 explainthat 4 bits are used to define that range, as such any ip address that start with 168.192.1. is in the same range as our servers. For the markdown, 255 means that every ip address in the range have that same byte, and 0 that it change for each of them. any other number will make the byte more devieded (for exemple, class b private addresses range is 17.16.0.0/12, 12 is not a multiple of 8, so the second byte is not completly allocated o name the range, as such, the markdown here is 255..0.0)
+The mask and the /24 have a similar use, they serve to detremine the range of ip address with which our own device can comunicate directly. the /24 explainthat 4 bits are used to define that range, as such any ip address that start with 168.192.1. is in the same range as our servers. For the markdown, 255 means that every ip address in the range have that same byte, and 0 that it change for each of them. any other number will make the byte more devieded (for exemple, class b private addresses range is 17.16.0.0/12, 12 is not a multiple of 8, so the second byte is not completly allocated o name the range, as such, the markdown here is 255.240.0.0)
+The gateway is the address that will represent this range.
+
+For the router, we need to first allocate the different interfaces. Ens 3 is the one it will use when connecting to the outisde world. it uses its public address (158.193.153.48). Ens 4 is the one it will use when interacting with server 1 and 2 and thus is defined by their gateway. and ens 5 is the one that will interact with the client server. This one uses a non-static address, as the client is always different.
+
+
+### NAT
+
+#### Introduction
+
+The Network Address Translation, is the way to allow the differents server to interact with the internet through the router. We will need to explain to the router who it can allow easy access too, and how to interact with each address.
+
+#### confguration
+
+To do this, we first download iptables
+
+<b><i> write code here</i></b>
+
+with it we can now co,figurate the bind.
