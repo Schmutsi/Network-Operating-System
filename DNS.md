@@ -1,43 +1,76 @@
 # DNS
 
+_Questions : On écrit au présent ou au passé ?_
+
+_On se met d'accord sur la typo pour avoir la même modèle_
+
 ## Introduction
 
 ### DNS
 
-Explanation what is a DNS and what it means
+The Domain Name System (DNS) is the hierarchical and distributed naming system used to identify computers reachable through the Internet or other Internet Protocol (IP) networks. [(Wikipedia)](https://en.wikipedia.org/wiki/Domain_Name_System)
 
-Our associated domaine name is sos4.cc.uniza.sk
+Thus, first aim of a DNS server is to translate a domain name, understood by a human, into an IP address, understood by a computer.
+
+For our configuration our associated domain name is "sos4.cc.uniza.sk".
 
 ### Primary and secondary architecture
 
-Explanation how it works
+To configure ours DNS servers we will assign different role to our two servers. We will use our server 1 as the primary server and server 2 as the secondary one.
 
+This Primary and Secondary architecture is a common method to configure DNS explaining bellow.
+
+The primary DNS server contains a DNS record that has the correct IP address for the hostname. If the primary DNS server is unavailable, the device contacts a secondary DNS server, containing a recent copy of the same DNS records.
+
+There are three main benefits of having a secondary DNS server for a domain name:
+
+-   Provide redundancy in case the primary DNS server goes down.
+-   Distribute the load between primary and secondary servers.
+-   Part of secure DNS strategy and preventing DDoS (Distribute Of Denial Service) attacks.
+    [(NS1)](https://ns1.com/resources/primary-dns-vs-secondary-dns-and-advanced-use-cases)
+
+_the following picture illustrate well how it works
+[test](/What-is-Primary-DNS.svg)_
+
+---
 
 ## Configuration
 
 ### Bind Installation
 
-``sudo apt-get install bind9``
+In order to configure a primary and secondary architecture from our server we will configure bind9 on both servers. First, install bind9.
 
-We also need to install utils of the package
+`sudo apt-get install bind9`
 
-``sudo apt-get install bind9-utils``
+Then, we also need to install utils of the package.
 
-Then all the modifications will occure in the bind folder, to access it from the root by the command 
+`sudo apt-get install bind9-utils`
 
-``cd /etc/bind``
+Configuration will append in the bind folder accessible from the root by this command.
 
-### Primary
+`cd /etc/bind`
 
-file named.conf.options put the fowarders 1.1.1.1 and 8.8.8.8
+### Primary server
 
-file named.conf.default-zones include all the code with the default view as following 
+In the _named.conf.options_ file, we put the forwarders 1.1.1.1 and 8.8.8.8. Which are respectively the public DNS to browse to the internet and Google's DNS.
+
+```
+forwarders {
+    1.1.1.1.;
+    8.8.8.8.;
+ };
+```
+
+In the _named.conf.default-zones_ file, we include all the code with the default view as following.
 
 ```
 view default { ... };
 ```
 
-file  named.conf.local write inside view and public view respectively with private and public IP
+In the _named.conf.local_ file, we write inside view (aka private view) and public view respectively with private and public IP addresses.
+The idea is to allow queries from ? ... ? and to associate the corresponding zone file.
+
+It's also important to add the match-clients line in order to ? ... ?
 
 ```
 view inside {
@@ -51,39 +84,54 @@ view public {
 };
 ```
 
-create folder primary and files zone.public and zone.private
+Create a folder _primary_ and files _zone.public_ and _zone.private_. In these zone files we define the zone names and domain names associated to the primary server.
+
+This file starts with a Start Of Authority (SOA) record, which has information about the zone, like the main name server, the administrator's email, and how long to wait between refreshes.
+
+Next come NS and A records for the name servers. We have two name servers ns1 and ns2 identified by the IP 158.193.153.105 for ns1.cc.sk and 158.193.153.110 for ns2.cc.sk in the public file case. In the private file case IP addresses 192.168.1.9 and 192.168.1.10 should replace the public addresses.
 
 ```
 @ IN SOA ns1.cc.sk. (...)
 @ IN NS ns1.cc.sk.
 @ IN NS ns2.cc.sk.
 
-ns1 A IP adress
-ns2 A IP adress
+ns1 A IP address
+ns2 A IP address
 ```
 
-### Secondary
+Be careful to the synthax, don't forget to put semicolons at the end of each line for the _named.conf_ files. And for the _zone_ files don't forget to put dots at the end of each domain name.
 
-Do the same as the primary server configureation with the following differences :
+### Secondary server
 
-- folder secondary
-- in the file named.conf.local remplacer par secondary et ajouter la ligne primaries { private IP serveur 1 primary ;};
-- c'est tout ?
+We do the same things as in the primary server with the following differences :
+
+-   We name the created folder _secondary_ instead of _primary_
+-   In the _named.conf.local_ file replace 'primary' by 'secondary' and add the following ligne who associate this secondary server to the primary one with its IP address.
+
+```
+primaries { 192.168.1.9; };
+```
+
+-   _c'est tout ?_
 
 ## Testing
 
-Bind might ask himself on the localhost IP '0' or '127.0.0.1'
+To test if our DNS configuration is working, we need to check if computers inside and outside our network can find our zone files and point the domain to the right address.
 
-For primary
+In our case to verify we make bind ask himself on the localhost IP 0 or 127.0.0.1. and we should obtain ? ... ?
 
-``host ns1.sos4.cc.uniza.sk 0``
+**For primary**
 
-And for secondary
+```
+>> host ns1.sos4.cc.uniza.sk
 
-``host ns2.sos4.cc.uniza.sk 0``
+```
 
-When it's working we can see the IP adress of the server tested (server 1 or server 2) as below :
+**And for secondary**
 
-...
+```
+>> host ns2.sos4.cc.uniza.sk
 
+```
 
+When it's working, ?... explanations\* ...?, we can see the IP address of the server tested (server 1 or server 2) as below :
