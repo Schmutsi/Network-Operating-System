@@ -68,19 +68,32 @@ view default { ... };
 ```
 
 In the _named.conf.local_ file, we write inside view (aka private view) and public view respectively with private and public IP addresses.
-The idea is to allow queries from ? ... ? and to associate the corresponding zone file.
 
-It's also important to add the match-clients line in order to ? ... ?
+On one hand, for the inside view, we only allow access (`match-clients` command) to private IP adresses which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
+
+The zone configuration of our network entitled "sos4.cc.uniza.sk" is linked to the _zone.private_ file. Configurations will be saved in this file, as the primary server.
+
+`allow-queries` from ? ... ? Same as `match-clients` ?
 
 ```
-view inside {
-...
+view inside {match-clients{192.168.1.0/24; 127.0.0.0/8;};
+        zone "sos4.cc.uniza.sk" {
+                file "/etc/bind/primary/zone.private";
+                type primary;
+                allow-query {192.168.1.0/24; 127.0.0.0/8;};
+        };
 };
 ```
 
+On the other hand, for the public view, we allow access (`match-clients` command) to all IP adresses excepted ones which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
+
 ```
-view public {
-...
+view public {match-clients{!192.168.1.0/24;any;};
+        zone "sos4.cc.uniza.sk" {
+                file "/etc/bind/primary/zone.public";
+                type primary;
+                allow-query {!192.168.1.0/24;any;};
+        };
 };
 ```
 
@@ -88,15 +101,28 @@ Create a folder _primary_ and files _zone.public_ and _zone.private_. In these z
 
 This file starts with a Start Of Authority (SOA) record, which has information about the zone, like the main name server, the administrator's email, and how long to wait between refreshes.
 
-Next come NS and A records for the name servers. We have two name servers ns1 and ns2 identified by the IP 158.193.153.105 for ns1.cc.sk and 158.193.153.110 for ns2.cc.sk in the public file case. In the private file case IP addresses 192.168.1.9 and 192.168.1.10 should replace the public addresses.
+Next come NS and A records for the name servers. We have two name servers ns1 and ns2 identified by the IP 158.193.153.105 for ns1.cc.sk and 158.193.153.110 for ns2.cc.sk in the public file case.
 
 ```
-@ IN SOA ns1.cc.sk. (...)
-@ IN NS ns1.cc.sk.
-@ IN NS ns2.cc.sk.
+@ IN SOA ns1.cc.sk. admin.cc.sk. (
+        2022031002 ;
+        3H ;
+        1H ;
+        2W ;
+        1H );
 
-ns1 A IP address
-ns2 A IP address
+@ IN    NS ns1.sos4.cc.uniza.sk.
+        NS ns2.sos4.cc.uniza.sk.
+
+ns1 A 192.168.1.9
+ns2 A 192.168.1.10
+```
+
+In the _zone.private_ file IP addresses 192.168.1.9 and 192.168.1.10 should replace the public addresses as below :
+
+```
+ns1 A 158.193.153.105
+ns2 A 158.193.153.110
 ```
 
 Be careful to the synthax, don't forget to put semicolons at the end of each line for the _named.conf_ files. And for the _zone_ files don't forget to put dots at the end of each domain name.
@@ -106,13 +132,15 @@ Be careful to the synthax, don't forget to put semicolons at the end of each lin
 We do the same things as in the primary server with the following differences :
 
 -   We name the created folder _secondary_ instead of _primary_
+
 -   In the _named.conf.local_ file replace 'primary' by 'secondary' and add the following ligne who associate this secondary server to the primary one with its IP address.
 
 ```
-primaries { 192.168.1.9; };
+type secondary;
+primaries { 192.168.1.9;};
 ```
 
--   _c'est tout ?_
+-   _c'est tout ?_ Quid de l'histoire de sauvegarder les configurations des zones du primary dans le secondary ?
 
 ## Testing
 
