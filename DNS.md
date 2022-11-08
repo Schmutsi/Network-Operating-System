@@ -69,7 +69,7 @@ view default { ... };
 
 In the _named.conf.local_ file, we write inside view (aka private view) and public view respectively with private and public IP addresses.
 
-On one hand, for the inside view, we only allow access (`match-clients` command) to private IP adresses which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
+On one hand, for the inside view, we only allow access to private IP adresses which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8. We do it with the `match-clients` command which restricts the listening of IPs and with `allow-queries` command which authorize actions of the following IPs.
 
 The zone configuration of our network entitled "sos4.cc.uniza.sk" is linked to the _zone.private_ file. Configurations will be saved in this file, as the primary server.
 
@@ -140,7 +140,35 @@ type secondary;
 primaries { 192.168.1.9;};
 ```
 
--   _c'est tout ?_ Quid de l'histoire de sauvegarder les configurations des zones du primary dans le secondary ?
+-   We need to copy zone files from the primary server to the secondary one in order to respect the stucture of the primary-secondary server configuration.
+
+In order to synchronize file we first should authorize the primary server to write in the secondary server's folders and files.
+
+`>> sudo chmod a+w secondary`
+
+_??? où est ce qu'on a rentré cette comande ? primary ou secondary ?_
+
+Then we fixed an error `apparmor denied` by enable apparmor with
+
+`>> sudo systemctl disable apparmor`
+
+Besides, in order to copy readable file with text format and not binary format we add the following line in the _named.conf.local_ file `masterfile-format text`.
+
+_??? named.conf.local mais lequel ? dans quel server ?_
+
+Eventually, because there are two different zone files we need to distinguish them, otherwise we will get the same content in the both zone files. To achieve this task we used tsig-keygen and create keys corresponding to each private and public zone files.
+
+_??? avons nous installer tsig-keygen ?_
+
+First we create 2 keys for the private and public sides :
+
+`>> tsig-keygen - hmac -sha512 sos4sos4.cc.uniza.sk`
+
+Then we add them to our files
+
+_??? which ones ?_
+
+_??? we should make it works?_
 
 ## Testing
 
@@ -153,12 +181,32 @@ In our case to verify we make bind ask himself on the localhost IP 0 or 127.0.0.
 ```
 >> host ns1.sos4.cc.uniza.sk
 
+debian@sos4-server1:~$ host ns1.sos4.cc.uniza.sk 0
+Using domain server:
+Name: 0
+Address: 0.0.0.0#53
+Aliases:
+
+ns1.sos4.cc.uniza.sk has address 192.168.1.9
+
+
 ```
 
 **And for secondary**
 
 ```
 >> host ns2.sos4.cc.uniza.sk
+
+
+debian@sos4-server2:~$ host ns2.sos4.cc.uniza.sk 0
+Using domain server:
+Name: 0
+Address: 0.0.0.0#53
+Aliases:
+
+ns2.sos4.cc.uniza.sk has address 192.168.1.10
+debian@sos4-server2:~$
+
 
 ```
 
