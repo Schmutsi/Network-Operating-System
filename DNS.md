@@ -69,11 +69,9 @@ view default { ... };
 
 In the _named.conf.local_ file, we write inside view (aka private view) and public view respectively with private and public IP addresses.
 
-On one hand, for the inside view, we only allow access to private IP adresses which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8. We do it with the `match-clients` command which restricts the listening of IPs and with `allow-queries` command which authorize actions of the following IPs.
+On one hand, for the inside view, we only allow access to private IP addresses which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8. We do it with the `match-clients` command which restricts the listening of IPs and with `allow-queries` command which authorize actions of the following IPs.
 
 The zone configuration of our network entitled "sos4.cc.uniza.sk" is linked to the _zone.private_ file. Configurations will be saved in this file, as the primary server.
-
-`allow-queries` from ? ... ? Same as `match-clients` ?
 
 ```
 view inside {match-clients{192.168.1.0/24; 127.0.0.0/8;};
@@ -85,7 +83,7 @@ view inside {match-clients{192.168.1.0/24; 127.0.0.0/8;};
 };
 ```
 
-On the other hand, for the public view, we allow access (`match-clients` command) to all IP adresses excepted ones which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
+On the other hand, for the public view, we allow access (`match-clients` command) to all IP addresses excepted ones which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
 
 ```
 view public {match-clients{!192.168.1.0/24;any;};
@@ -133,53 +131,76 @@ We do the same things as in the primary server with the following differences :
 
 -   We name the created folder _secondary_ instead of _primary_
 
--   In the _named.conf.local_ file replace 'primary' by 'secondary' and add the following ligne who associate this secondary server to the primary one with its IP address.
+-   In the _named.conf.local_ file replace 'primary' by 'secondary' and associate this secondary server to the primary one with its IP address in both public and inside views.
 
-```
-type secondary;
-primaries { 192.168.1.9;};
-```
+-   We need to copy zone files from the primary server to the secondary one in order to respect the structure of the primary-secondary server configuration.
 
--   We need to copy zone files from the primary server to the secondary one in order to respect the stucture of the primary-secondary server configuration.
+In order to synchronize zone files we first should authorize the primary server to write in the secondary server's folders and files as following
 
-In order to synchronize file we first should authorize the primary server to write in the secondary server's folders and files.
+`>> debian@sos4-server2:/etc/bind$ sudo chmod a+w secondary`
 
-`>> sudo chmod a+w secondary`
-
-_??? où est ce qu'on a rentré cette comande ? primary ou secondary ?_
-
-Then we fixed an error `apparmor denied` by enable apparmor with
+Then we have to fixe an error `apparmor denied` by enable apparmor with
 
 `>> sudo systemctl disable apparmor`
 
-Besides, in order to copy readable file with text format and not binary format we add the following line in the _named.conf.local_ file `masterfile-format text`.
+Besides, in order to copy readable file with text format and not binary format we add the following line in the server2's _named.conf.local_ file `masterfile-format text`.
 
-_??? named.conf.local mais lequel ? dans quel server ?_
+Eventually, because there are two different zone files we need to distinguish them, otherwise we will get the same content in both _zone.private_ and _zone.public_ files. To achieve this task we used _tsig-keygen_ and create keys corresponding to each private and public zone files.
 
-Eventually, because there are two different zone files we need to distinguish them, otherwise we will get the same content in the both zone files. To achieve this task we used tsig-keygen and create keys corresponding to each private and public zone files.
+First we create the 2 keys :
 
-_??? avons nous installer tsig-keygen ?_
+`>> sudo tsig-keygen -a hmac-sha512 private-key`
 
-First we create 2 keys for the private and public sides :
+`>> sudo tsig-keygen -a hmac-sha512 public-key`
 
-`>> tsig-keygen - hmac -sha512 sos4sos4.cc.uniza.sk`
+Then we add them to our files `named.conf.local` on both primary and secondary servers outside the views :
 
-Then we add them to our files
+```
+key "private-key" {
+        algorithm hmac-sha512;
+        secret "wjvkVCgX37qGeQk4to8qy12Eiztf+sSWCnXwuJ1R7CBuN5WktWjyeaV7pVUtknVq84O3ZdMskr0GR94ZEObMNw==";
+};
 
-_??? which ones ?_
+key "public-key" {
+        algorithm hmac-sha512;
+        secret "RU3Wai0jX5J8RzlOLXjuW80m2yCY0JkGNhuAvUbqOqlmpG3mvVWnrgsYgkDXVMZbwkszKWHy+UAbkv+6oPabtQ==";
+};
+
+```
+
+We add in the primary server's inside view (analogous thing in the public view):
+
+```
+allow-transfer {key "private-key";};
+
+```
+
+And we add in the secondary server's inside view (analogous thing in the public view):
+
+```
+type secondary;
+primaries {192.168.1.9 key "private-key";};
+
+```
 
 _??? we should make it works?_
 
 ## Testing
 
-To test if our DNS configuration is working, we need to check if computers inside and outside our network can find our zone files and point the domain to the right address.
+First and foremost it's important to restart bind in order to create zone files in the secondary server copied from the primary server's zone files.
 
-In our case to verify we make bind ask himself on the localhost IP 0 or 127.0.0.1. and we should obtain ? ... ?
+`>> sudo systemctl restart bind9`
+
+Then, we should check that our zone files has been created or edited there : `debian@sos4-server2:/etc/bind/secondary$`
+
+Then, to test if our DNS configuration is working, we need to check if computers inside and outside our network can find our zone files and point the domain to the right address.
+
+To verify if the configuration works properly, we make bind ask himself on the localhost IP 0 or 127.0.0.1. We should obtain the private IP address of each server associated to its right domain name :
 
 **For primary**
 
 ```
->> host ns1.sos4.cc.uniza.sk
+>> host ns1.sos4.cc.uniza.sk 0
 
 debian@sos4-server1:~$ host ns1.sos4.cc.uniza.sk 0
 Using domain server:
@@ -188,8 +209,6 @@ Address: 0.0.0.0#53
 Aliases:
 
 ns1.sos4.cc.uniza.sk has address 192.168.1.9
-
-
 ```
 
 **And for secondary**
@@ -206,8 +225,6 @@ Aliases:
 
 ns2.sos4.cc.uniza.sk has address 192.168.1.10
 debian@sos4-server2:~$
-
-
 ```
 
-When it's working, ?... explanations\* ...?, we can see the IP address of the server tested (server 1 or server 2) as below :
+The DNS is properly configured
