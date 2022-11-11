@@ -42,7 +42,7 @@ The Network Address Translation, is the way to allow the different server to int
 
 ### configuration
 
-To do this, we first download iptables
+To do this, we would first download iptables.
 
 <b><i> write code here</i></b>
 
