@@ -43,7 +43,9 @@ The Network Address Translation, is the way to allow the different server to int
 ### configuration
 
 To do this, we would first download iptables.
+With this we can now define our interfaces roles in the network.
 
-<b><i> write code here</i></b>
+```
+```
 
 with it we can now configurate the bind.
