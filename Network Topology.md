@@ -45,7 +45,20 @@ The Network Address Translation, is the way to allow the different server to int
 To do this, we would first download iptables.
 With this we can now define our interfaces roles in the network.
 
-```
-```
+First we define localhost and ens3 our interface linked to the Internet as an inputs.
+`sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -i ens3 -p tcp --dport 22`
+Now we can connect to the router through these ports ( localhost or port tcp22 of the ip address 158.163.105.48
+
+Then we define ens3 as a postrouting.
+`sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE`
+
+and finally we can advance to the forwarding and tell the router how to react to queries from the private interfaces to the public one.
+We want the private interfaces to be able to go to the internet wihout any problem, but we need the internet to be unable to access the private interfaces wihout prior request. This is what the stte Related Establish condition means.
+`sudo iptables -A FORWARD -i ens3 -o ens4 -m state --state RELATED,ESTABLISHED -j ACCEPTED
+sudo iptables -A FORWARD -i ens3 -o ens5 -m state --state RELATED,ESTABLISHED -j ACCEPTED
+sudo iptables -A FORWARD -i ens4 -o ens3 -j ACCEPTED
+sudo iptables -A FORWARD -i ens5 -o ens3 -j ACCEPTED`
+
 
 with it we can now configurate the bind.
