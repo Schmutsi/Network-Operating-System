@@ -20,14 +20,15 @@ Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
 pkts bytes target prot opt in out source destination
 debian@sos4-server-router:~$ sudo iptables -t nat A POSTROUTING -o ens3 -j MASQ
 Bad argument `A' Try `iptables -h' or 'iptables --help' for more information.
-debian@sos4-server-router:~$ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQiptables v1.8.7 (nf_tables): Chain 'MASQ' does not exist
-Try `iptables -h' or 'iptables --help' for more information. debian@sos4-server-router:~$ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE debian@sos4-server-router:~$ sudo iptables -A INPUT -i lo -j ACCEPT debian@sos4-server-router:~$ sudo iptables -A INPUT -i ens3 -p tcp --dport 22 debian@sos4-server-router:~$ sudo iptables -A FORWARD -i ens3 -o ens4 -m state --state RELATED,ESTABLISHED -j ACCEPTED iptables v1.8.7 (nf_tables): Chain 'ACCEPTED' does not exist Try `iptables -h' or 'iptables --help' for more information.
+debian@sos4-server-router:~$ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQiptables v1.8.7 (nf*tables): Chain 'MASQ' does not exist
+Try
+`iptables -h' or 'iptables --help' for more information. debian@sos4-server-router:~$ sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE debian@sos4-server-router:~$ sudo iptables -A INPUT -i lo -j ACCEPT debian@sos4-server-router:~$ sudo iptables -A INPUT -i ens3 -p tcp --dport 22 debian@sos4-server-router:~$ sudo iptables -A FORWARD -i ens3 -o ens4 -m state --state RELATED,ESTABLISHED -j ACCEPTED iptables v1.8.7 (nf_tables): Chain 'ACCEPTED' does not exist Try `iptables -h' or 'iptables --help' for more information.
 debian@sos4-server-router:~$ sudo iptables -A FORWARD -i ens3 -o ens4 -m state --state RELATED,ESTABLISHED -j ACCEPT
 debian@sos4-server-router:~$ sudo iptables -A FORWARD -i ens4 -o ens3 -j ACCEPT debian@sos4-server-router:~$ sudo iptables -L -v -n
 Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
 pkts bytes target prot opt in out source destination
-0 0 ACCEPT all -- lo _ 0.0.0.0/0 0.0.0.0/0  
- 414 31984 tcp -- ens3 _ 0.0.0.0/0 0.0.0.0/0 tcp dpt:22
+0 0 ACCEPT all -- lo * 0.0.0.0/0 0.0.0.0/0  
+ 414 31984 tcp -- ens3 \_ 0.0.0.0/0 0.0.0.0/0 tcp dpt:22
 
 Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
 pkts bytes target prot opt in out source destination
