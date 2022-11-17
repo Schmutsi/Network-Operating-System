@@ -183,7 +183,7 @@ primaries {192.168.1.9 key "private-key";};
 
 ```
 
-_??? we should make it works?_
+_??? we should make it works? AJOUT D'ACL INTERFACES POUR METTRE LES CLEFS DANS LE ALLOW TRANSFERT_
 
 ## Testing
 
