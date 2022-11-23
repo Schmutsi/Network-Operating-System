@@ -25,9 +25,42 @@ in it there will be one file : 50.cloud.init.etc
 place the chosen Ip.
 Server 1 will be 168.192.1.9 and Sever 2 168.192.1.10
 
-`
+```
+auto lo
+iface lo inet loopback
+    dns-nameservers 158.193.152.4
 
-`
+auto ens3
+iface ens3 inet static
+    address 192.168.1.9/24
+    gateway 192.168.1.1
+    mtu 1450
+
+auto ens4
+iface ens4 inet dhcp
+    mtu 1500
+
+```
+
+```
+auto lo
+iface lo inet loopback
+    dns-nameservers 158.193.152.4
+
+auto ens3
+iface ens3 inet static
+    address 192.168.1.10/24
+    gateway 192.168.1.1
+    mtu 1450
+    post-up route add default gw 192.168.1.1 || true
+    pre-down route del default gw 192.168.1.1 || true
+
+auto ens4
+iface ens4 inet dhcp
+    mtu 1500
+
+
+```
 
 The mask and the /24 have a similar use, they serve to determine the range of ip address with which our own device can comumnicate directly. the /24 explains that 4 bits are used to define that range, as such any ip address that start with 168.192.1. is in the same range as our servers. For the markdown, 255 means that every ip address in the range has that same byte, and 0 that it changes for each of them. Any other number will make the byte more devided (for example, class b private addresses range is 17.16.0.0/12, 12 is not a multiple of 8, so the second byte is not completely allocated to name the range, as such, the markdown here is 255.240.0.0)
 The gateway is the address that will represent this range.
