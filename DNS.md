@@ -1,12 +1,8 @@
 # DNS
 
-_Questions : On écrit au présent ou au passé ?_
-
-_On se met d'accord sur la typo pour avoir la même modèle_
-
 ## Introduction
 
-### DNS
+### Domain Name System
 
 The Domain Name System (DNS) is the hierarchical and distributed naming system used to identify computers reachable through the Internet or other Internet Protocol (IP) networks. [(Wikipedia)](https://en.wikipedia.org/wiki/Domain_Name_System)
 
@@ -192,6 +188,8 @@ type secondary;
 primaries {192.168.1.9 key "private-key";};
 
 ```
+
+---
 
 ## Testing
 
