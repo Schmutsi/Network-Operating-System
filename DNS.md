@@ -40,15 +40,15 @@ _the following picture illustrate well how it works
 
 In order to configure a primary and secondary architecture from our server we will configure bind9 on both servers. First, install bind9.
 
-`sudo apt-get install bind9`
+`$ sudo apt-get install bind9`
 
 Then, we also need to install utils of the package.
 
-`sudo apt-get install bind9-utils`
+`$ sudo apt-get install bind9-utils`
 
 Configuration will append in the bind folder accessible from the root by this command.
 
-`cd /etc/bind`
+`$ cd /etc/bind`
 
 ### Primary server
 
@@ -83,7 +83,7 @@ view inside {match-clients{192.168.1.0/24; 127.0.0.0/8;};
 };
 ```
 
-On the other hand, for the public view, we allow access (`match-clients` command) to all IP addresses excepted ones which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
+On the other hand, for the public view, we allow access (`match-clients` and `allow-query` command) to all IP addresses excepted ones which came from our local network 192.168.1.0/24 and from the localhost 127.0.0.0/8.
 
 ```
 view public {match-clients{!192.168.1.0/24;any;};
@@ -95,7 +95,7 @@ view public {match-clients{!192.168.1.0/24;any;};
 };
 ```
 
-Create a folder _primary_ and files _zone.public_ and _zone.private_. In these zone files we define the zone names and domain names associated to the primary server.
+We create a folder _primary_ and files _zone.public_ and _zone.private_. In these zone files we define the zone names and domain names associated to the primary server.
 
 This file starts with a Start Of Authority (SOA) record, which has information about the zone, like the main name server, the administrator's email, and how long to wait between refreshes.
 
@@ -137,11 +137,11 @@ We do the same things as in the primary server with the following differences :
 
 In order to synchronize zone files we first should authorize the primary server to write in the secondary server's folders and files as following
 
-`>> debian@sos4-server2:/etc/bind$ sudo chmod a+w secondary`
+`$ debian@sos4-server2:/etc/bind$ sudo chmod a+w secondary`
 
 Then we have to fixe an error `apparmor denied` by enable apparmor with
 
-`>> sudo systemctl disable apparmor`
+`$ sudo systemctl disable apparmor`
 
 Besides, in order to copy readable file with text format and not binary format we add the following line in the server2's _named.conf.local_ file `masterfile-format text`.
 
@@ -168,11 +168,21 @@ key "public-key" {
 
 ```
 
-We add in the primary server's inside view (analogous thing in the public view):
+We add in the primary server's inside view (analogous thing in the public view) updates to allow access to IP addresses passing private key. We used ACL as interfaces to insert keys in the `match-client` command.
 
 ```
-allow-transfer {key "private-key";};
+acl insideacl {
+!key "public-key";key "private-key"; 127.0.0.0/8; 192.168.1.0/24;
+};
 
+...
+
+match-clients{insideacl;}
+
+...
+
+allow-transfer {key "private-key";};
+...
 ```
 
 And we add in the secondary server's inside view (analogous thing in the public view):
@@ -182,8 +192,6 @@ type secondary;
 primaries {192.168.1.9 key "private-key";};
 
 ```
-
-_??? we should make it works? AJOUT D'ACL INTERFACES POUR METTRE LES CLEFS DANS LE ALLOW TRANSFERT_
 
 ## Testing
 
