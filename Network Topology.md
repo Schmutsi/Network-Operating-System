@@ -67,6 +67,8 @@ The gateway is the address that will represent this range.
 
 For the router, we need to first allocate the different interfaces. Ens 3 is the one it will use when connecting to the outside world. it uses its public address (158.193.153.48). Ens 4 is the one it will use when interacting with server 1 and 2 and thus is defined by their gateway. and ens 5 is the one that will interact with the client server. This one uses a non-static address, as the client is always different.
 
+---
+
 ## NAT
 
 ### Introduction

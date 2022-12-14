@@ -42,7 +42,9 @@ $ sudo iptables -A INPUT -p tcp --dport 80, 443 -m conntrack --ctstate NEW,ESTAB
 $ sudo iptables -A OUTPUT -p tcp --sport 80, 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 ```
 
-### Static web creation
+---
+
+## Static web creation
 
 _Now the web server should work properly by giving the default nginx landing page when we enter in our browser http://158.193.153.105 but it doesn't work_
 
@@ -90,7 +92,7 @@ Next, we enable this server block by creating a symbolic link to our custom conf
 $ sudo ln -s /etc/nginx/sites-available/sos4.cc.uniza.sk /etc/nginx/sites-enabled/
 ```
 
-We also uncomment the following line to avoid possible hash bucket memory problem in the nginx.conf file.
+We also uncomment the following line to avoid possible hash bucket memory problem in the `nginx.conf` file.
 
 ```
 ...
@@ -116,23 +118,102 @@ nameserver 192.168.1.9
 nameserver 158.193.153.105
 ```
 
-_Eventually, to test our static web server configuration we can do some curl commands with server ip addresses and our domain name wherever on our architecture._
+### Testing
 
-```
-$ curl www.sos4.cc.uniza.sk
-$ curl 158.193.153.105
-$ curl 192.168.1.9
+Eventually, if all these configurations were done properly we would be able to access to our static web site (html file host on our server) at the following adress : http://www.sos4.cc.uniza.sk
 
-```
-
-_It should also work on the browser_
-
-If it worked properly we would obtain our html file hosted on our server.
-
-### Dynamic web creation
-
-### HTTPS set-up
+_Test private and public ip adresses curl www.sos4.cc.uniza.sk 158.193.153.105 and 192.168.1.9_
 
 ---
 
-## Testing
+## Dynamic web creation
+
+### Install PHP and Maria DB
+
+First we install MariaDB, PHP and other complementary modules.
+
+```
+$ sudo apt-get install nginx mariadb-server mariadb-client php-cgi php-common php-fpm php-mbstring php-zip php-net-socket php-gd php-mysql php-bcmath unzip wget git -y
+```
+
+### Configure a WordPress Database
+
+Then, we create a database and user for WordPress. WordPress will use this database to store its information, and the user to have access to the database.
+
+In the MariaDB prompt `mysql -u root -p` we enter the following lines :
+
+```
+$ MariaDB [(none)]> CREATE DATABASE wpsos4db;
+$ MariaDB [(none)]> CREATE USER 'sos4'@'localhost' identified by 'sos';
+$ MariaDB [(none)]> GRANT ALL PRIVILEGES ON wpsos4db.* TO 'sos4'@'localhost';
+$ MariaDB [(none)]> FLUSH PRIVILEGES;
+$ MariaDB [(none)]> EXIT;
+```
+
+### Install Wordpress
+
+After the database configuration we install WordPress by downloading the latest release of WordPress.
+
+```
+$ cd /var/www/html/
+$ wget https://wordpress.org/latest.tar.gz
+$ tar -xvzf latest.tar.gz
+```
+
+We need to adapt the file `/../.../.././../wp-config.php` with the database and the user we have just created.
+
+```
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */define( 'DB_NAME', 'wpsos4db' );
+
+/** MySQL database username */define( 'DB_USER', 'sos4' );
+
+/** MySQL database password */define( 'DB_PASSWORD', 'sos' );
+
+/** MySQL hostname */define( 'DB_HOST', 'localhost' );
+```
+
+### Configure Nginx for WordPress
+
+Next, we will need to create a Virtual Host nginx configuration file for WordPress. You can create a new Virtual Host configuration file here `/etc/nginx/sites-available/wordpress.conf` and fill it with the following lines.
+
+```
+
+...
+
+TO COMPLETE
+
+...
+
+```
+
+We enable this server block by creating a symbolic link as we done before.
+
+Eventually, we connect this dynamic web site to our DNS and add a new route *http://wordpress.sos4.cc.uniza.sk* in the `/etc/bind/primary/zone.private` file as bellow.
+
+```
+wordpress.sos4.cc.uniza.sk
+```
+
+### Access the WordPress Site
+
+When we browse the *http://wordpress.sos4.cc.uniza.sk* website for the first time we are redirected to the wordpress installation page.
+
+After that we can easily connect to the admin panel of wordpress and customize our website.
+
+As a good french group we decided to create a very brief website on french specialities (our french food miss us...).
+
+_end attaching the photo_
+
+Because WordPress is quiet RAM-greddy, we start our website only when we want with the following command line, otherwise we stop php and mysql modules.
+
+```
+$ sudo systemctl start php7.4-fpm mysqld
+$ sudo systemctl stop php7.4-fpm mysqld
+```
+
+---
+
+## HTTPS set-up (SSL certificate)
+
+_Need to read everything and check the language_
