@@ -2,31 +2,84 @@
 
 ## Introduction
 
-The Dynamic Host Configuration Protocol, is another way to assign an ip address. Instead of giving it a name exactly and being forced to have planned every computer using the network. 
-We can have the network itself assign a valid ip address to a user.
+Sometimes, we don’t know exactly how many devices would be connected to a server. Thus we can’t allocated them with previously planned ip addresses. In this scenario, it isn’t possible to establish static ip address like done in the previous network configuration.
 
-We will use the dhcp for the client server.
-However, instead of creating the dhcp server in the router, we will create it in server 1 to allow a better control. (ne me demande pas ce que j'ai voulu dire par la jsp, j'essaie juste de donner une raison random pour pourquoi on fait ça)
+Thus we use a dhcp server, it will allocate ip addresses to devices trying to connect to it.
+In our configuration, we will have the Client server configured with a dhcp address.
+To do this, we will have our server 1 act as a dhcp server, it will be the one allocating the ip addresses. The router will need to be a dhcp relay in order to connect the server client and our dhcp server.
 
 ## configuration
 
 First we install isc-dhcp-server
-
+```
+sudo apt-get install isc-dhcp-server
+```
 in the files created, we search for /etc/dhcp/dhcpd.conf and enter our basic needs
 
-`code to write here`
+```
+option domain-name "sos4.cc.uniza.sk";
+option domain-name-servers ns1.sos4.cc.uniza.sk, ns2.sos4.cc.uniza.sk;
 
-Then we get /etc/default/isc-dhcp-server
+default-lease-time 600;
+max-lease-time 7200;
+```
+We establish the name of our domain and the different servers and decide of a lease time (how long do we reserve an ip address to a specific device).
+Then on the same file : 
+```
+subnet 192.168.1.0 netmask 255.255.255.0 {
+range 192.168.1.40 192.168.1.60;
+
+option routers 192.168.1.1;
+
+}
+
+subnet 192.168.2.0 netmask 255.255.255.0 {
+range 192.168.2.2 192.168.2.254;
+
+option routers 192.168.2.1;
+}
+```
+In here we create specify two ranges of ip addresses that will can be used by the external devices. We specify the subnet and netmask of the network, and then the range of ips.
+The `option router` line specify which gateway to rely on, the ip address of the interface on the router.
+
+
+Finally we get /etc/default/isc-dhcp-server
 and precise wich interfaces to listend too.
 
-``enter code her`
+```
+INTERFACESv4="ens3"
+INTERFACESv6=""
+```
+the interface linked to the router is ens3 in server one.
+
+Then we just have to restart the server to make it work.
+```
+sudo  service isc-dhcp-server restart
+```
 
 now that the dhcp is configured on server1
+
 
 We need to instal a relay on the router.
 
 we install isc-dhcp-relay
+```
+sudo apt-get install isc-dhcp-relay
+```
 get to get /etc/default/isc-dhcp-relay
 and provide wich interfaces to listend too, and the dhcp server's private ip address.
-
+```
+enter code here
+```
+in the file /etc/dhcp/dhcp.conf we precise the address of the dhcp server.
+```
+enter code here
+```
 Finally, we just have to modify the 'static' in server client's /etc/interface.d/50-cloud-init with dhcp to make it all work
+```
+enter code here
+```
+Then we just have to restart the server to make it work.
+```
+sudo  service isc-dhcp-relay restart
+```
