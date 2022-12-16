@@ -32,7 +32,7 @@ _the following picture illustrate well how it works
 
 ## Configuration
 
-### Bind Installation
+### Installing Bind
 
 In order to configure a primary and secondary architecture from our server we will configure bind9 on both servers. First, install bind9.
 
@@ -46,7 +46,7 @@ Configuration will append in the bind folder accessible from the root by this co
 
 `$ cd /etc/bind`
 
-### Primary server
+### Configuring primary server
 
 In the _named.conf.options_ file, we put the forwarders 1.1.1.1 and 8.8.8.8. Which are respectively the public DNS to browse to the internet and Google's DNS.
 
@@ -121,7 +121,7 @@ ns2 A 158.193.153.110
 
 Be careful to the synthax, don't forget to put semicolons at the end of each line for the _named.conf_ files. And for the _zone_ files don't forget to put dots at the end of each domain name.
 
-### Secondary server
+### Configuring secondary server
 
 We do the same things as in the primary server with the following differences :
 

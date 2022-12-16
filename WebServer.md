@@ -16,17 +16,17 @@ A static web server sends its hosted files as-is to your browser (like an html f
 
 ## Configuration
 
-### Nginx installation
+### Installing Nginx
 
-Nginx and Apach are the two more common web server and we choose to install Nginx to our server 1.
+Nginx and Apach are the two more common web server, and we choose to install Nginx to our server 1.
 
 ```
 $ sudo apt-get install nginx
 ```
 
-### NAT and firewall configuration
+### Configuring NAT and firewall
 
-It's necessary to modify the firewall setting to allow outside access to default web ports. Thus we modify iptables configuration in our router.
+It's necessary to modify the firewall setting to allow outside access to default web ports. Thus, we modify iptables configuration in our router.
 
 First, in the FORWARD chain we remove the conditions of states ESTABLISHED and RELATED and accept all requests from the outside (from en3 to ens4).
 
@@ -111,36 +111,42 @@ $ sudo nginx -t
 $ sudo systemctl restart nginx
 ```
 
-Morover, in the file `/etc/resolv.conf` we add the public ip address to make the web server also works on this address.
+Moreover, in the file `/etc/resolv.conf` we add the public IP address to make the web server also works on this address.
 
 ```
 nameserver 192.168.1.9
 nameserver 158.193.153.105
 ```
 
+Eventually, we modify the `/etc/bind/primary/zone.public` DNS zone file to be able to access our static web site on the address http://www.sos4.cc.uniza.sk in every browser.
+
+```
+www A 158.193.153.48
+```
+
 ### Testing
 
-Eventually, if all these configurations were done properly we would be able to access to our static web site (html file host on our server) at the following adress : http://www.sos4.cc.uniza.sk
+Eventually, if all these configurations were done properly, we would be able to access to our static web site (html file host on our server) at the following address: http://www.sos4.cc.uniza.sk
 
-_Test private and public ip adresses curl www.sos4.cc.uniza.sk 158.193.153.105 and 192.168.1.9_
+_do a screenshot and link the image_
 
 ---
 
 ## Dynamic web creation
 
-### Install PHP and Maria DB
+### Installing PHP and Maria DB
 
-First we install MariaDB, PHP and other complementary modules.
+First, we install MariaDB, PHP and other complementary modules.
 
 ```
 $ sudo apt-get install nginx mariadb-server mariadb-client php-cgi php-common php-fpm php-mbstring php-zip php-net-socket php-gd php-mysql php-bcmath unzip wget git -y
 ```
 
-### Configure a WordPress Database
+### Configuring a WordPress Database
 
 Then, we create a database and user for WordPress. WordPress will use this database to store its information, and the user to have access to the database.
 
-In the MariaDB prompt `mysql -u root -p` we enter the following lines :
+In the MariaDB prompt `mysql -u root -p` we enter the following lines:
 
 ```
 $ MariaDB [(none)]> CREATE DATABASE wpsos4db;
@@ -150,7 +156,7 @@ $ MariaDB [(none)]> FLUSH PRIVILEGES;
 $ MariaDB [(none)]> EXIT;
 ```
 
-### Install Wordpress
+### Installing WordPress
 
 After the database configuration we install WordPress by downloading the latest release of WordPress.
 
@@ -160,7 +166,7 @@ $ wget https://wordpress.org/latest.tar.gz
 $ tar -xvzf latest.tar.gz
 ```
 
-We need to adapt the file `/../.../.././../wp-config.php` with the database and the user we have just created.
+We need to adapt the file `/var/www/sos4.cc.uniza.sk/html-wordpress/wordpress/wp-config.php` with the database and the user we have just created.
 
 ```
 // ** MySQL settings - You can get this info from your web host ** //
@@ -173,39 +179,41 @@ We need to adapt the file `/../.../.././../wp-config.php` with the database and 
 /** MySQL hostname */define( 'DB_HOST', 'localhost' );
 ```
 
-### Configure Nginx for WordPress
+### Configuring Nginx for WordPress
 
-Next, we will need to create a Virtual Host nginx configuration file for WordPress. You can create a new Virtual Host configuration file here `/etc/nginx/sites-available/wordpress.conf` and fill it with the following lines.
-
-```
-
-...
-
-TO COMPLETE
-
-...
+Next, we will need to create a Virtual Host nginx configuration file for WordPress on _wordpress.sos4.cc.uniza.sk_. We can create a new Virtual Host configuration file here `/etc/nginx/sites-available/wordpress.conf` and fill it with the following lines.
 
 ```
+server {
+    listen 80;
+    root /var/www/sos4.cc.uniza.sk/html-wordpress/wordpress;
+    index index.php index.html index.htm;
+    server_name wordpress.sos4.cc.uniza.sk;
 
-We enable this server block by creating a symbolic link as we done before.
+    . . .
+
+}
+```
+
+We enable this server block by creating a symbolic link as we have done before.
 
 Eventually, we connect this dynamic web site to our DNS and add a new route *http://wordpress.sos4.cc.uniza.sk* in the `/etc/bind/primary/zone.private` file as bellow.
 
 ```
-wordpress.sos4.cc.uniza.sk
+wordpress A 158.193.153.48
 ```
 
-### Access the WordPress Site
+### Accessing the WordPress Site
 
-When we browse the *http://wordpress.sos4.cc.uniza.sk* website for the first time we are redirected to the wordpress installation page.
+When we browse the *http://wordpress.sos4.cc.uniza.sk* website for the first time we are redirected to the WordPress installation page.
 
-After that we can easily connect to the admin panel of wordpress and customize our website.
+After that we can easily connect to the admin panel of WordPress and customize our website.
 
-As a good french group we decided to create a very brief website on french specialities (our french food miss us...).
+As a proper French group, we decided to create a very brief website on French specialties (our French food miss us...).
 
-_end attaching the photo_
+![Postfix config shell image](/assets/OurWPSite.PNG 'Postfix config shell')
 
-Because WordPress is quiet RAM-greddy, we start our website only when we want with the following command line, otherwise we stop php and mysql modules.
+Because WordPress is quiet RAM-greedy, we start our website only when we want with the following command line, otherwise we stop php and mysql modules.
 
 ```
 $ sudo systemctl start php7.4-fpm mysqld
@@ -215,5 +223,3 @@ $ sudo systemctl stop php7.4-fpm mysqld
 ---
 
 ## HTTPS set-up (SSL certificate)
-
-_Need to read everything and check the language_
