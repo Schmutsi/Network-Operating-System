@@ -63,7 +63,8 @@ In /etc/hosts, we add this line
 or
 ```
 192.168.2.1 ntp-host
-```for the client
+```
+for the client
 
 
 to check if it works as intended we can look at the synchronisation : `ntpq -p`
