@@ -2,6 +2,8 @@
 
 Not exaustive list of the website which help us.
 
+-   Primary and secondary DNS architecture : https://ns1.com/resources/primary-dns-vs-secondary-dns-and-advanced-use-cases)
+
 -   How to Install Nginx on Debian 10 : https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-debian-10
 
 -   How to Install WordPress with Nginx on Debian 10 : https://www.rosehosting.com/blog/how-to-install-wordpress-with-nginx-on-debian-10/

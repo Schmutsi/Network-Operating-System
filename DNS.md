@@ -23,10 +23,6 @@ There are three main benefits of having a secondary DNS server for a domain name
 -   Provide redundancy in case the primary DNS server goes down.
 -   Distribute the load between primary and secondary servers.
 -   Part of secure DNS strategy and preventing DDoS (Distribute Of Denial Service) attacks.
-    [(NS1)](https://ns1.com/resources/primary-dns-vs-secondary-dns-and-advanced-use-cases)
-
-_the following picture illustrate well how it works
-[test](/What-is-Primary-DNS.svg)_
 
 ---
 
@@ -36,15 +32,21 @@ _the following picture illustrate well how it works
 
 In order to configure a primary and secondary architecture from our server we will configure bind9 on both servers. First, install bind9.
 
-`$ sudo apt-get install bind9`
+```
+$ sudo apt-get install bind9
+```
 
 Then, we also need to install utils of the package.
 
-`$ sudo apt-get install bind9-utils`
+```
+$ sudo apt-get install bind9-utils
+```
 
 Configuration will append in the bind folder accessible from the root by this command.
 
-`$ cd /etc/bind`
+```
+$ cd /etc/bind
+```
 
 ### Configuring primary server
 
@@ -133,11 +135,15 @@ We do the same things as in the primary server with the following differences :
 
 In order to synchronize zone files we first should authorize the primary server to write in the secondary server's folders and files as following
 
-`$ debian@sos4-server2:/etc/bind$ sudo chmod a+w secondary`
+```
+$ debian@sos4-server2:/etc/bind$ sudo chmod a+w secondary
+```
 
 Then we have to fixe an error `apparmor denied` by enable apparmor with
 
-`$ sudo systemctl disable apparmor`
+```
+$ sudo systemctl disable apparmor
+```
 
 Besides, in order to copy readable file with text format and not binary format we add the following line in the server2's _named.conf.local_ file `masterfile-format text`.
 
@@ -145,11 +151,12 @@ Eventually, because there are two different zone files we need to distinguish th
 
 First we create the 2 keys :
 
-`>> sudo tsig-keygen -a hmac-sha512 private-key`
+```
+$ sudo tsig-keygen -a hmac-sha512 private-key
+$ sudo tsig-keygen -a hmac-sha512 public-key
+```
 
-`>> sudo tsig-keygen -a hmac-sha512 public-key`
-
-Then we add them to our files `named.conf.local` on both primary and secondary servers outside the views :
+Then we add them to our files _named.conf.local_ on both primary and secondary servers outside the views :
 
 ```
 key "private-key" {
@@ -195,9 +202,11 @@ primaries {192.168.1.9 key "private-key";};
 
 First and foremost it's important to restart bind in order to create zone files in the secondary server copied from the primary server's zone files.
 
-`>> sudo systemctl restart bind9`
+```
+$ sudo systemctl restart bind9
+```
 
-Then, we should check that our zone files has been created or edited there : `debian@sos4-server2:/etc/bind/secondary$`
+Then, we should check that our zone files has been created or edited there : _/etc/bind/secondary_
 
 Then, to test if our DNS configuration is working, we need to check if computers inside and outside our network can find our zone files and point the domain to the right address.
 
