@@ -26,7 +26,7 @@ There are three main benefits of having a secondary DNS server for a domain name
 
 ---
 
-## Configuration
+## Configuring
 
 ### Installing Bind
 

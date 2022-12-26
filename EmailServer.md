@@ -110,7 +110,7 @@ $ sudo iptables -A INPUT -p tcp --dport 143 -m conntrack --ctstate NEW,ESTABLISH
 $ sudo iptables -A OUTPUT -p tcp --sport 143 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 ```
 
-## Visualize emails: Rainloop
+## Visualizing emails: Rainloop
 
 ### Configuring a Rainloop database
 
@@ -135,7 +135,7 @@ sudo wget http://www.rainloop.net/repository/webmail/rainloop-latest.zip
 
 ### Configuring Nginx for Rainloop
 
-Next, we will need to create a Virtual Host nginx configuration file for Rainloop on _mail.sos4.cc.uniza.sk_. We can create a new Virtual Host configuration file here `/etc/nginx/sites-available/rainloop.conf` and fill it with the following lines.
+Next, we will need to create a Virtual Host nginx configuration file for Rainloop on _mail.sos4.cc.uniza.sk_. We can create a new Virtual Host configuration file here _/etc/nginx/sites-available/rainloop.conf_ and fill it with the following lines.
 
 ```
 server {
@@ -153,7 +153,7 @@ server {
 
 We enable this server block by creating a symbolic link as we have done before.
 
-Eventually, we connect this dynamic web site to our DNS and add a new route _http://mail.sos4.cc.uniza.sk_ in the `/etc/bind/primary/zone.private` file as bellow.
+Eventually, we connect this dynamic web site to our DNS and add a new route http://mail.sos4.cc.uniza.sk in the _/etc/bind/primary/zone.private_ file as bellow.
 
 ```
 @ IN MX 10 mail
@@ -165,7 +165,7 @@ mail A 158.193.153.48
 
 We access the RainLoop dashboard using the URL http://mail.sos4.cc.uniza.sk/?admin.
 
-We Provide the default username _admin_ and password _12345_ to be logged in the admin rainloop dahsbord.
+We Provide the default username `admin` and password `12345` to be logged in the admin rainloop dahsbord.
 
 We can easily change default username and password.
 

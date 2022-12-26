@@ -18,7 +18,7 @@ We can dissociate these addresses into two types: private and public, private ip
 
 All of the servers will use private ip addresses to communicate with the router. The public address will be allocated by the router and used to communicate with the internet.
 
-### Configuration
+### Configuring
 
 On server 1 and 2, find the directory _/etc/network/interfaces.d_
 in it there will be one file _50.cloud.init.etc_
@@ -74,7 +74,7 @@ For the router, we need to first allocate the different interfaces. Ens 3 is the
 
 The Network Address Translation (NAT) is the way to allow the different server to interact with the internet through the router. We will need to explain to the router who it can allow easy access too, and how to interact with each address.
 
-### configuration
+### Configuring
 
 To do this, we would first download iptables.
 With this we can now define our interfaces roles in the network.

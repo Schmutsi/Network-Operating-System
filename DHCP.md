@@ -10,7 +10,7 @@ To do this, we will have our server 1 act as a dhcp server, it will be the one a
 
 ---
 
-## Configuration
+## Configuring
 
 First, we install isc-dhcp-server
 

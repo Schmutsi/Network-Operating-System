@@ -44,11 +44,9 @@ $ sudo iptables -A OUTPUT -p tcp --sport 80, 443 -m conntrack --ctstate ESTABLIS
 
 ---
 
-## Static web creation
+## Creating static web
 
-_Now the web server should work properly by giving the default nginx landing page when we enter in our browser http://158.193.153.105 but it doesn't work_
-
-In order to display our own html page host on our server, we create this file at this following path: `/var/www/sos4.cc.uniza.sk/html/index.html`
+In order to display our own html page host on our server, we create this file at this following path: _/var/www/sos4.cc.uniza.sk/html/index.html_
 
 ```
 <html>
@@ -62,14 +60,14 @@ In order to display our own html page host on our server, we create this file at
 </html>
 ```
 
-When we created the folder `/var/www/sos4.cc.uniza.sk/html` we assign ownership of the directory with the `$USER` environment variable, which should reference our current system user. Besides we give permission to our web root to the folder as below:
+When we created the folder _/var/www/sos4.cc.uniza.sk/html_ we assign ownership of the directory with the `$USER` environment variable, which should reference our current system user. Besides we give permission to our web root to the folder as below:
 
 ```
 $ sudo chown -R $USER:$USER /var/www/sos4.cc.uniza.sk/html
 $ sudo chmod -R 755 /var/www/sos4.cc.uniza.sk
 ```
 
-In order Nginx to serve this content, we create a configuration file with correct directives that point to our custom web root there `/etc/nginx/sites-available/sos4.cc.uniza.sk`:
+In order Nginx to serve this content, we create a configuration file with correct directives that point to our custom web root there _/etc/nginx/sites-available/sos4.cc.uniza.sk_:
 
 ```
 server {
@@ -86,13 +84,13 @@ server {
 }
 ```
 
-Next, we enable this server block by creating a symbolic link to our custom configuration file inside the `sites-enabled` directory, which Nginx reads from during startup:
+Next, we enable this server block by creating a symbolic link to our custom configuration file inside the _sites-enabled_ directory, which Nginx reads from during startup:
 
 ```
 $ sudo ln -s /etc/nginx/sites-available/sos4.cc.uniza.sk /etc/nginx/sites-enabled/
 ```
 
-We also uncomment the following line to avoid possible hash bucket memory problem in the `nginx.conf` file.
+We also uncomment the following line to avoid possible hash bucket memory problem in the _nginx.conf_ file.
 
 ```
 ...
@@ -111,14 +109,14 @@ $ sudo nginx -t
 $ sudo systemctl restart nginx
 ```
 
-Moreover, in the file `/etc/resolv.conf` we add the public IP address to make the web server also works on this address.
+Moreover, in the file _/etc/resolv.conf_ we add the public IP address to make the web server also works on this address.
 
 ```
 nameserver 192.168.1.9
 nameserver 158.193.153.105
 ```
 
-Eventually, we modify the `/etc/bind/primary/zone.public` DNS zone file to be able to access our static web site on the address http://www.sos4.cc.uniza.sk in every browser.
+Eventually, we modify the _/etc/bind/primary/zone.public_ DNS zone file to be able to access our static web site on the address http://www.sos4.cc.uniza.sk in every browser.
 
 ```
 www A 158.193.153.48
@@ -166,7 +164,7 @@ $ wget https://wordpress.org/latest.tar.gz
 $ tar -xvzf latest.tar.gz
 ```
 
-We need to adapt the file `/var/www/sos4.cc.uniza.sk/html-wordpress/wordpress/wp-config.php` with the database and the user we have just created.
+We need to adapt the file _/var/www/sos4.cc.uniza.sk/html-wordpress/wordpress/wp-config.php_ with the database and the user we have just created.
 
 ```
 // ** MySQL settings - You can get this info from your web host ** //
@@ -181,7 +179,7 @@ We need to adapt the file `/var/www/sos4.cc.uniza.sk/html-wordpress/wordpress/wp
 
 ### Configuring Nginx for WordPress
 
-Next, we will need to create a Virtual Host nginx configuration file for WordPress on _wordpress.sos4.cc.uniza.sk_. We can create a new Virtual Host configuration file here `/etc/nginx/sites-available/wordpress.conf` and fill it with the following lines.
+Next, we will need to create a Virtual Host nginx configuration file for WordPress on _wordpress.sos4.cc.uniza.sk_. We can create a new Virtual Host configuration file here _/etc/nginx/sites-available/wordpress.conf_ and fill it with the following lines.
 
 ```
 server {
@@ -197,7 +195,7 @@ server {
 
 We enable this server block by creating a symbolic link as we have done before.
 
-Eventually, we connect this dynamic web site to our DNS and add a new route *http://wordpress.sos4.cc.uniza.sk* in the `/etc/bind/primary/zone.private` file as bellow.
+Eventually, we connect this dynamic web site to our DNS and add a new route http://wordpress.sos4.cc.uniza.sk in the _/etc/bind/primary/zone.private_ file as bellow.
 
 ```
 wordpress A 158.193.153.48
@@ -205,7 +203,7 @@ wordpress A 158.193.153.48
 
 ### Accessing the WordPress Site
 
-When we browse the *http://wordpress.sos4.cc.uniza.sk* website for the first time we are redirected to the WordPress installation page.
+When we browse the http://wordpress.sos4.cc.uniza.sk website for the first time we are redirected to the WordPress installation page.
 
 After that we can easily connect to the admin panel of WordPress and customize our website.
 
