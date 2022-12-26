@@ -13,3 +13,7 @@ Not exaustive list of the website which help us.
 -   Part 2: Install Dovecot IMAP server on Debian & Enable TLS Encryption : https://www.linuxbabe.com/mail-server/install-dovecot-imap-server-debian
 
 -   How to install RainLoop Webmail on Debian 10 : https://www.atlantic.net/vps-hosting/how-to-install-rainloop-webmail-on-debian-10/
+
+-   How to install DHCP : https://doc.ubuntu-fr.org/isc-dhcp-server
+
+-   How to install bind9 : https://help.ubuntu.com/community/BIND9ServerHowto
