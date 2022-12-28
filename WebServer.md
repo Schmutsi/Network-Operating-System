@@ -38,8 +38,16 @@ $ sudo iptables -A FORWARD -i ens3 -o ens4 -j ACCEPT
 Then, in the INPUT and OUTPUT chains we accept all request from port 80 (http requests) and 443 (https requests) with the state ESTABLISHED. We also allow requests with the state NEW in the INPUT chain.
 
 ```
-$ sudo iptables -A INPUT -p tcp --dport 80, 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-$ sudo iptables -A OUTPUT -p tcp --sport 80, 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+$ sudo iptables -A INPUT -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$ sudo iptables -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$ sudo iptables -A OUTPUT -p tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+$ sudo iptables -A OUTPUT -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+```
+
+Eventually, we authorize servers to access to internet through the following NAT configuration.
+
+```
+$ sudo iptables -t nat -A PREROUTING -i ens3 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.9:80
 ```
 
 ---

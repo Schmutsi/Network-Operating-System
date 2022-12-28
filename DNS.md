@@ -215,7 +215,7 @@ To verify if the configuration works properly, we make bind ask himself on the l
 **For primary**
 
 ```
->> host ns1.sos4.cc.uniza.sk 0
+$ host ns1.sos4.cc.uniza.sk 0
 
 debian@sos4-server1:~$ host ns1.sos4.cc.uniza.sk 0
 Using domain server:
@@ -229,7 +229,7 @@ ns1.sos4.cc.uniza.sk has address 192.168.1.9
 **And for secondary**
 
 ```
->> host ns2.sos4.cc.uniza.sk
+$ host ns2.sos4.cc.uniza.sk
 
 
 debian@sos4-server2:~$ host ns2.sos4.cc.uniza.sk 0

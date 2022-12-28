@@ -17,7 +17,6 @@ First, we install ntp
 
 ```
 sudo apt install ntp
-
 ```
 
 Then we choose to use the ntp server from <b>Write name here</b>

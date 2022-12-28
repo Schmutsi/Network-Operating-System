@@ -128,4 +128,4 @@ sudo apt-get install iptables-persistent
 
 and allow the saving of all our ip.v4 configuration.
 
-We now have access to a document in _/etc/iptables/named rules.v4_ where everything we've done is stored and saved.
+We now have access to a document in _/etc/iptables/rules.v4_ where everything we've done is stored and saved.
