@@ -19,7 +19,7 @@ First, we install ntp
 sudo apt install ntp
 ```
 
-Then we choose to use the ntp server from <b>Write name here</b>
+Then we choose to use the ntp server from https://www.pool.ntp.org/zone/sk.
 
 in the file _/etc/ntp.conf_: we introduce the ntp server we will be a client of.
 
