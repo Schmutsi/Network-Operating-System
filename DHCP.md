@@ -29,6 +29,7 @@ max-lease-time 7200;
 ```
 
 We establish the name of our domain and the different servers and decide of a lease time (how long do we reserve an ip address to a specific device).
+We also need to specify the address of the router that will serve as a relay for the dhcp.
 Then on the same file:
 
 ```
@@ -86,17 +87,8 @@ SERVERS="192.168.1.9"
 INTERFACES="ens4 ens5"
 ```
 
-in the file /etc/dhcp/dhcp.conf we precise the address of the dhcp server.
+Finally, we just have to modify the 'static' in server client's /etc/interface.d/50-cloud-init by 'dhcp' to make it all work.
 
-```
-enter code here
-```
-
-Finally, we just have to modify the 'static' in server client's /etc/interface.d/50-cloud-init with dhcp to make it all work
-
-```
-enter code here
-```
 
 Then we just have to restart the server to make it work.
 
