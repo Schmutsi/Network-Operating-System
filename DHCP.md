@@ -79,7 +79,11 @@ get to get /etc/default/isc-dhcp-relay
 and provide which interfaces to listen to, and the dhcp server's private ip address.
 
 ```
-enter code here
+# What servers should the DHCP relay forward requests to?
+SERVERS="192.168.1.9"
+
+# On what interfaces should the DHCP relay (dhrelay) serve DHCP requests?
+INTERFACES="ens4 ens5"
 ```
 
 in the file /etc/dhcp/dhcp.conf we precise the address of the dhcp server.
