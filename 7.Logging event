@@ -1,0 +1,59 @@
+# Logging event
+
+## Introduction
+
+Logging is the act of keeping a record of any event or error that occurs in the system. Looking at the logs can help a lot when debugging a system. Keeping a standard for every log is helpful in understanding the problems quickly and easily.
+Syslog is the standard for message logging that we will use. It separates different messages logs by their level of importance:
+  
+We will use syslog-ng and rsyslog, two implementations of syslog for Linux.
+
+## Configuration
+
+On our router, we install syslog-ng: 
+```
+Sudo apt-get install syslog-ng 
+```
+In it we find the file _/etc/syslog-ng/syslig-ng.conf_
+We modify the code to have: 
+```
+source s_src {
+        system();
+        internal();
+        network (ip("0.0.0.0") port(514) transport("udp"));
+        network (ip("0.0.0.0") port(514) transport("tcp"));
+};
+```
+In here we open port 514 for udp and tcp for any ip address.
+On the other servers, we need to modify the file _/etc/rsyslog.conf_, the servers originally have rsyslog installed in it.
+```
+local0.* @@192.168.1.1:514
+```
+We specify where to find the syslog server (on the 192.168.1.1 interface for server1 and server2, for server client, we need to change the address to 192.168.2.1).
+
+Now we need to log our events directly from bind9, for this we need to modify a few lines on he device that owns our DNS : server1.
+
+On server1, we add a line on the file _/etc/bind/named.conf 
+```
+include "/etc/bind/named.conf.syslog";
+```
+That will ask bind to take into consideration what is written on the file named.conf.syslog.
+Then we need to create this file, and fill it with this code:
+```
+logging {
+        channel syslog_user {
+                syslog local0;
+                severity debug 7;
+
+                print-category yes;
+                print-severity yes;
+        };
+
+        category queries { syslog_user;};
+};
+```
+
+Finally, we can check if our configuration worked by watching the logs on the file _/var/log/messages_
+In here we used curl to search at google.com and watched the event appearing on the logs.
+```
+
+```
